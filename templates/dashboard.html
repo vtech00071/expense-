@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Financial Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+</head>
+<body data-user-email="{{ user_email }}">
+
+    <div class="dashboard-container">
+        <header class="header">
+            <div class="user-profile">
+                <img src="{{ url_for('static', filename=user_picture) }}" alt="Avatar">
+                
+                <div class="user-info">
+                    <h1 class="user-name">Welcome, {{ user_name }}!</h1>
+                    <span class="user-matric">{{ user_matric }}</span>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <a href="/settings" class="btn btn-logout"><i class="fas fa-cog"></i> Settings</a>
+                <a href="/logout" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="primary-area">
+                <section class="overview-cards">
+                    <div class="card total-balance-card">
+                        <i class="fas fa-wallet card-icon"></i>
+                        <div class="card-title">Total Balance</div>
+                        <div class="card-value" id="totalBalance">₦0.00</div>
+                    </div>
+                    <div class="card total-income-card">
+                        <i class="fas fa-arrow-up card-icon"></i>
+                        <div class="card-title">Total Income</div>
+                        <div class="card-value" id="totalIncome">₦0.00</div>
+                    </div>
+                    <div class="card total-expenses-card">
+                        <i class="fas fa-arrow-down card-icon"></i>
+                        <div class="card-title">Total Expenses</div>
+                        <div class="card-value" id="totalExpenses">₦0.00</div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="section-title">Record Transactions</div>
+                    <div class="form-wrapper">
+                        <div class="transaction-form">
+                            <h3 class="form-title" style="color: var(--expense-color);">Add Expense (Send Money)</h3>
+                            <form id="addExpenseForm">
+                                <div class="form-group">
+                                    <label for="expenseAmount">Amount</label>
+                                    <input type="number" id="expenseAmount" name="amount" required step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label for="expenseCategory">Category</label>
+                                    <select id="expenseCategory" name="category" required>
+                                        {% for category in categories %}
+                                            <option value="{{ category }}">{{ category }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="expenseDescription">Description (e.g., "Cafeteria")</label>
+                                    <textarea id="expenseDescription" name="description" rows="2"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="expenseDate">Date</label>
+                                    <input type="date" id="expenseDate" name="date" required>
+                                </div>
+                                <button type="submit" class="btn btn-expense">
+                                    <i class="fas fa-minus-circle"></i> Add Expense
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="transaction-form">
+                            <h3 class="form-title" style="color: var(--success-color);">Add Income</h3>
+                            
+                            <form id="fundAccountForm">
+                                <div class="form-group">
+                                    <label for="fundAmountInput">Amount (NGN)</label>
+                                    <input type="number" id="fundAmountInput" name="amount" placeholder="e.g., 5000" required step="0.01" min="100">
+                                </div>
+                                <div class="form-group">
+                                    <label for="incomeDescription">Description (Optional)</label>
+                                    <textarea id="incomeDescription" name="description" rows="2" placeholder="e.g., Pocket money"></textarea>
+                                </div>
+                                <div class="form-group" style="margin-top: 2.8rem;">
+                                    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                                        Use this to add money to your account via our secure payment gateway.
+                                    </p>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-income">
+                                    <i class="fas fa-plus-circle"></i> Add Income
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="section-title">Recent Transactions</div>
+                    <div id="recentTransactionsList">
+                        <p class="no-data-message">No transactions yet.</p>
+                    </div>
+                </section>
+
+            </div>
+
+            <div class="secondary-area">
+                <section class="card">
+                    <div class="section-title">Spending Insights</div>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="spendingChart"></canvas>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="section-title">Budgets</div>
+                    <form id="setBudgetForm" class="form-set-budget">
+                        <div class="form-group">
+                            <label for="budgetCategory">Category</label>
+                            <select id="budgetCategory" name="category" required>
+                                {% for category in categories %}
+                                    <option value="{{ category }}">{{ category }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="budgetAmount">Budget Amount</label>
+                            <input type="number" id="budgetAmount" name="amount" placeholder="e.g., 10000" required step="0.01">
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-chart-pie"></i> Set Budget</button>
+                    </form>
+                    <div id="budgetList" class="budget-list" style="margin-top: 1.5rem;">
+                        <p class="no-data-message">No budgets set yet.</p>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="section-title">Financial Goals</div>
+                    <form id="addGoalForm" class="form-set-budget">
+                        <div class="form-group">
+                             <label for="goalName">Goal Name</label>
+                            <input type="text" id="goalName" name="goalName" placeholder="e.g., New Laptop" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="goalTargetAmount">Target Amount</label>
+                            <input type="number" id="goalTargetAmount" name="goalTargetAmount" placeholder="e.g., 150000" required step="0.01">
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-bullseye"></i> Set Goal</button>
+                    </form>
+                    <div id="goalsList" class="budget-list" style="margin-top: 1.5rem;">
+                        <p class="no-data-message">No goals set yet.</p>
+                    </div>
+                </section>
+                
+                <div class="card" style="background-color: transparent; box-shadow: none; text-align: center;">
+                    <button id="reset-btn" class="btn btn-logout" style="color: var(--expense-color); border-color: var(--expense-color);"><i class="fas fa-trash-alt"></i> Reset All Data</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="alertModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Notification</h5>
+                <button type="button" class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary modal-close-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="fundGoalModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Fund a Financial Goal</h5>
+                <button type="button" class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="fundGoalForm">
+                    <div class="form-group">
+                        <label for="fundGoalSelect">Select Goal</label>
+                        <select id="fundGoalSelect" name="goal_id" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fundAmount">Amount to Fund</label>
+                        <input type="number" id="fundAmount" name="amount" required step="0.01">
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-hand-holding-usd"></i> Fund Goal</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <script>
+                // We need to define showModal here because main.js might not be loaded
+                const alertModal = document.getElementById('alertModal');
+                const modalMessage = document.getElementById('modalMessage');
+                const modalCloseButtons = document.querySelectorAll('.modal-close-btn');
+
+                function showModal(message) {
+                    modalMessage.textContent = message;
+                    alertModal.style.display = 'flex';
+                }
+
+                modalCloseButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        alertModal.style.display = 'none';
+                    });
+                });
+                
+                document.addEventListener('DOMContentLoaded', () => {
+                    {% for category, message in messages %}
+                        showModal({{ message | tojson }});
+                    {% endfor %}
+                });
+            </script>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

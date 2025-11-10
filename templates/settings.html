@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Settings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <header class="header">
+            <div class="user-profile">
+                <img src="{{ url_for('static', filename=user_picture) }}" alt="Avatar">
+                <div class="user-info">
+                    <h1 class="user-name">User Settings</h1>
+                    <span class="user-matric">Manage your profile and password</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="/" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+            </div>
+        </header>
+
+        <div class="settings-content">
+            
+            <form action="/settings" method="POST" enctype="multipart/form-data" class="card">
+                <div class="section-title">Profile Information</div>
+                
+                <div class="settings-avatar-card">
+                    <img src="{{ url_for('static', filename=user_picture) }}" alt="Profile Picture">
+                    <div class="form-group">
+                        <label for="profilePicture">Change Profile Picture</label>
+                        <input type="file" id="profilePicture" name="profile_picture" accept="image/png, image/jpeg" class="form-group">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fullname">Full Name</label>
+                    <input type="text" id="fullname" name="fullname" value="{{ user.fullname }}" required>
+                </div>
+                
+                <div class="form-group-inline">
+                    <div class="form-group">
+                        <label for="matric">Matric Number</label>
+                        <input type="text" id="matric" name="matric" value="{{ user.matric }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" disabled>
+                        <small style="color: var(--text-secondary);">Email change is disabled for this project.</small>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Profile Changes</button>
+            </form>
+            
+            <form action="/change_password" method="POST" class="card">
+                <div class="section-title">Change Password</div>
+
+                <div class="form-group">
+                    <label for="current_password">Current Password</label>
+                    <input type="password" id="current_password" name="current_password" required>
+                </div>
+                <div class="form-group">
+                    <label for="new_password">New Password</label>
+                    <input type="password" id="new_password" name="new_password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password">Confirm New Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="background-color: var(--text-primary);"><i class="fas fa-lock"></i> Update Password</button>
+            </form>
+
+        </div>
+    </div>
+
+    <div id="alertModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Notification</h5>
+                <button type="button" class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary modal-close-btn">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Simple modal functions
+        const alertModal = document.getElementById('alertModal');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalCloseButtons = document.querySelectorAll('.modal-close-btn');
+
+        function showModal(message) {
+            modalMessage.textContent = message;
+            alertModal.style.display = 'flex';
+        }
+
+        modalCloseButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                alertModal.style.display = 'none';
+            });
+        });
+    </script>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    {% for category, message in messages %}
+                        showModal({{ message | tojson }});
+                    {% endfor %}
+                });
+            </script>
+        {% endif %}
+    {% endwith %}
+
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyFinances - Login & Register</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* General Body and Container Styles */
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            color: #333;
+        }
+
+        /* Form Card */
+        .form-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            max-width: 450px;
+            width: 100%;
+            animation: fadeSlideUp 0.6s ease forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes fadeSlideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header .fas {
+            font-size: 3.5rem;
+            color: #4c51bf;
+            margin-bottom: 1rem;
+        }
+
+        .auth-header h2 {
+            color: #1a202c;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .greeting {
+            font-size: 0.95rem;
+            color: #718096;
+            margin-top: 0;
+        }
+
+        /* Form Groups and Inputs */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
+        }
+
+        /* Button Styles */
+        button {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        /* Links and Messages */
+        .link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #718096;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .link a {
+            color: #4c51bf;
+            font-weight: 600;
+        }
+        
+        .link:hover {
+            color: #555;
+        }
+        
+        .link a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-card">
+        <div class="auth-header">
+            <i class="fas fa-graduation-cap"></i>
+            <h2 id="form-heading">Welcome Back</h2>
+            <p class="greeting" id="greeting-text">Hello, students! Manage your finances with ease.</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit">Log In</button>
+        </form>
+
+        <form id="registerForm" class="hidden">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="fullname" required>
+            </div>
+            <div class="form-group">
+                <label>Matric Number</label>
+                <input type="text" id="matric" required>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="emailReg" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="passwordReg" required>
+            </div>
+            <button type="submit">Register</button>
+        </form>
+
+        <span class="link" id="showRegister">Don't have an account? <a href="#">Register</a></span>
+        <span class="link hidden" id="showLogin">Already have an account? <a href="#">Log In</a></span>
+
+    </div>
+
+    <script>
+        const loginForm = document.getElementById("loginForm");
+        const registerForm = document.getElementById("registerForm");
+        const showRegisterLink = document.getElementById("showRegister");
+        const showLoginLink = document.getElementById("showLogin");
+        const formHeading = document.getElementById("form-heading");
+        const greetingText = document.getElementById("greeting-text");
+
+        showRegisterLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            loginForm.classList.add("hidden");
+            registerForm.classList.remove("hidden");
+            showRegisterLink.classList.add("hidden");
+            showLoginLink.classList.remove("hidden");
+            formHeading.textContent = "Create Account";
+            greetingText.textContent = "Join us and take control of your finances!";
+        });
+
+        showLoginLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            registerForm.classList.add("hidden");
+            loginForm.classList.remove("hidden");
+            showLoginLink.classList.add("hidden");
+            showRegisterLink.classList.remove("hidden");
+            formHeading.textContent = "Welcome Back";
+            greetingText.textContent = "Hello, students! Manage your finances with ease.";
+        });
+
+        // Register Logic
+        registerForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const res = await fetch("/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    fullname: document.getElementById("fullname").value,
+                    matric: document.getElementById("matric").value,
+                    email: document.getElementById("emailReg").value,
+                    password: document.getElementById("passwordReg").value
+                })
+            });
+            const data = await res.json();
+            alert(data.message);
+            if (data.status === "success") {
+                registerForm.reset();
+                registerForm.classList.add("hidden");
+                loginForm.classList.remove("hidden");
+                showLoginLink.classList.add("hidden");
+                showRegisterLink.classList.remove("hidden");
+                formHeading.textContent = "Welcome Back";
+                greetingText.textContent = "Hello, students! Manage your finances with ease.";
+            }
+        });
+
+        // Login Logic
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const res = await fetch("/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: document.getElementById("email").value,
+                    password: document.getElementById("password").value
+                })
+            });
+            const data = await res.json();
+            alert(data.message);
+            if (data.status === "success") {
+                window.location.href = "/";
+            }
+        });
+    </script>
+</body>
+</html>
